@@ -250,10 +250,11 @@ Matrix MultCRS_STD(const Matrix& A, const Matrix& b) {
           {
             const size_t old_index = b.Column.at(j) + 1;
             size_t new_index = 0;
-            g_lock.lock();
-            new_index = B.RowInd.at(old_index);
-            B.RowInd.at(old_index)++;
-            g_lock.unlock();
+            {
+              std::lock_guard<std::mutex> anObj(g_lock);
+              new_index = B.RowInd.at(old_index);
+              B.RowInd.at(old_index)++;
+            }
             B.Values.at(new_index) = b.Values.at(j);
             B.Column.at(new_index) = i;
           }
